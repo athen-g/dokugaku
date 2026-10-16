@@ -4,14 +4,15 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "test": "node --test server/dashboard.test.mjs",
+    "test": "node --test server/*.test.mjs",
     "dev": "vite --host 127.0.0.1",
     "build": "tsc -b && vite build",
     "preview": "vite preview --host 127.0.0.1"
   },
   "dependencies": {
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "wanakana": "^5.3.1"
   },
   "devDependencies": {
     "@types/react": "^19.0.0",

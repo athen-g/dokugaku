@@ -98,7 +98,7 @@ export default function LiveDashboard() {
         <div>
           <h2 id="live-title">Your connected desk</h2>
           <p className="fine">
-            Real account data. No reviews or logs are submitted yet.
+            Live account data. Your study activity saves automatically.
           </p>
         </div>
         <button
@@ -209,7 +209,7 @@ export default function LiveDashboard() {
               <p className="fine">
                 Study Schedule is readable.
                 <br />
-                Automatic study logging comes next.
+                Daily study logging is managed in Progress.
               </p>
             </>
           ) : (

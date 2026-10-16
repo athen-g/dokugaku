@@ -12,7 +12,7 @@ const secretFiles = {
   notion: "notion-token.clixml",
 };
 
-async function windowsSecret(service) {
+export async function windowsSecret(service) {
   const filename = secretFiles[service];
   if (!filename || process.platform !== "win32") throw new Error("setup");
   // DPAPI decryption happens in a child process. Its output stays in server memory.

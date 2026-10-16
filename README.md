@@ -1,32 +1,42 @@
 # DokuGaku · 独学
 
-A calm Japanese study desk, built with React, TypeScript, and Vite, with a local Node.js backend. The visual direction combines warm paper and editorial typography with restrained brutalist borders and controls.
+A personal JLPT N5 study desk built with React, TypeScript, Vite, and a local Node backend. Warm paper, editorial typography, restrained brutalist controls, and light/dark themes. No paid AI service is used.
 
-## Run locally
+## Run on your computer
 
 ```sh
 npm install
-npm run dev
+npm run dev -- --port 3000
 ```
 
-Open the local URL printed by Vite. Run `npm run build` to check types and produce a production build.
+Open the printed loopback URL. Keep Anki open for Anki reviews and automatic card creation. The backend is included in both `npm run dev` and `npm run preview`; a static deployment alone cannot provide the integrations.
 
-## Current scope
+```sh
+npm test
+npm run build
+```
 
-- Responsive Today screen and light/dark themes.
-- Three-card sample Anki and WaniKani-style review rounds.
-- Answer reveal, sample ratings, typed English meanings, examples, pause/resume, and round summaries.
-- A short grammar lesson preview with furigana.
+## Study features
 
-**Today shows live read-only connection data when configured locally. Reviews and lessons remain samples.** No reviews, card creation, or study logs are submitted by the app yet. Only the theme preference is saved in browser storage. WaniKani sample marking accepts the single displayed English meaning; a production reviewer will need richer answer handling.
+- Today: live connection summaries, exam countdown, weekday/weekend suggestions, next unfinished lesson, and active study time.
+- Review: real Anki and WaniKani rounds of 5, 10, or 20 cards, with breaks and early finish.
+- Learn: 28 original foundation lessons, examples with furigana, device speech, and server-marked lesson checks. These are independent teaching material, not copied from a textbook.
+- Practice: short reading/listening rounds and a mistake queue that removes questions after a subsequent correct answer.
+- Mock exams: one original 96-question paper, three timed sections (20/40/30 minutes), saved answers, refresh recovery, section locking, explanations, and raw results. The item mix is not an official replica. It uses supportive furigana and device-generated speech, not official recordings. Raw accuracy cannot predict a JLPT scaled score or pass.
+- Progress: automatically recorded activity, daily Notion summaries, automatic mistake cards, connection retry controls, and record export.
+- Library: official resource links and optional private Drive PDF/audio previews. Supplied reference papers are not transcribed or automatically scored; the built-in original paper is automatically scored.
 
-## Local connections
+Japanese practice audio requires an installed Japanese speech voice. Availability is detected and an unavailable voice is shown explicitly. Anki audio uses Anki's own playback on this computer. WanaKana provides romaji-to-kana input for reading answers.
 
-Run Anki with AnkiConnect on `127.0.0.1:8765`. Anki queue counts include all decks except the integration-test deck/tag, and count due cards rather than new cards. Counts may differ from Anki's daily-limit display. Reviewed-today counts are distinct cards in Anki's current study day, not number of review attempts.
+## Connection setup and private data
 
-On Windows, the server can read user-encrypted SecureStrings from `.local/wanikani-token.clixml` and `.local/notion-token.clixml`. These must be created interactively on the same Windows account using `Read-Host -AsSecureString` and `Export-Clixml`. Never commit tokens or put them in frontend environment variables. The server decrypts tokens in memory and returns only dashboard summaries. It sends WaniKani GET requests and reads the Notion data-source schema; it does not write to either service.
+AnkiConnect must listen on `127.0.0.1:8765`. The review flow uses Anki's active reviewer, available rating buttons, and scheduling intervals. Deck daily limits and learning steps still apply. Avoid reviewing the same deck in both windows simultaneously. Card HTML is sandboxed: scripts and external network requests are blocked. Script-driven template controls may require Anki's own window.
 
-The ignored `.local/notion-check.json` selects the study planner using this structure (replace the example ID locally):
+The live dashboard counts due cards across all decks except the integration-test deck/tag. These counts exclude new cards and can differ from Anki's daily-limit display. Reviewed-today counts are distinct cards in Anki's study day. DokuGaku's Progress page counts completed activity inside DokuGaku only.
+
+On Windows, store credentials as user-encrypted SecureStrings in `.local/wanikani-token.clixml` and `.local/notion-token.clixml`, created interactively using `Read-Host -AsSecureString` and `Export-Clixml` on the same Windows account. Credentials are decrypted only in server memory, are never returned to the browser, and cannot be copied to hosting. WaniKani needs review-creation permission; Notion needs read/insert/update access to the planner.
+
+The ignored `.local/notion-check.json` selects the existing planner:
 
 ```json
 {
@@ -39,20 +49,44 @@ The ignored `.local/notion-check.json` selects the study planner using this stru
 }
 ```
 
-Existing local connection-check files are compatible. Credentials are machine/user-specific and are not portable to hosting. If a connection is missing or fails, its status is shown independently. Failed sources retain last-known counts in server memory with an explicit stale label; no successful history means unknown counts. The endpoint caches results for one minute and shares simultaneous requests. Its UI polls once a minute only while visible.
+The planner currently expects `Task` (title), `Done` (checkbox), and `Notes` (rich text). Daily entries are identified by `dokugaku-day-YYYY-MM-DD`. Existing unrelated entries are not edited. Active time excludes hidden tabs, breaks, and periods without interaction for more than a minute; it is an estimate of activity, not attention measurement. The exam timer continues while away.
 
-`GET /api/dashboard` is served by the local Vite server (development and preview). It rejects non-loopback hosts, cross-origin requests, and write methods. Static deployment alone cannot provide this backend. Do not expose this personal development server to the internet.
+Anki mistakes go into a separate `DokuGaku::Mistakes` deck using a `DokuGaku Recall` note type. Stable question tags avoid duplicate cards. Unanswered exam questions remain visible as gaps but do not create dozens of cards automatically. Card creation and Notion logging are on by default and can be disabled independently in Progress.
 
-Run `npm test` for aggregation, caching, failure-state, and local-access tests.
+An optional ignored `.local/resource-catalog.json` adds source viewers without publishing personal file IDs:
 
-## Planned integrations
+```json
+{
+  "items": [
+    {
+      "title": "My reference paper",
+      "kind": "paper",
+      "url": "https://drive.google.com/file/d/YOUR_FILE_ID/preview"
+    }
+  ]
+}
+```
 
-AnkiConnect, WaniKani, and Notion will connect through a local backend. The frontend must never receive service tokens. Credentials, personal reports, private setup scripts, dependencies, and build output are ignored by Git. Integration validation is separate from this public prototype.
+Supported kinds: paper, audio, answers, transcript, folder. Only Google Drive file previews/views and folder links are accepted. Drive remains responsible for access and previews.
 
-## Artwork
+## Saving and failure recovery
 
-The sparrow and notebooks illustration was generated for this project with OpenAI's image-generation tool. It is decorative and does not contain study material.
+Activity, answers, sessions, pending cards, preferences, and sync receipts are saved atomically in ignored `.local/study-state.json`. Browser storage holds theme/page preferences and session pointers. Export in Progress produces a personal JSON backup; keep backups private. Do not run multiple backend processes against the same local state file.
 
-## Prototype validation
+Notion and pending card creation retry once a minute while the local server runs, or through Progress. A completed activity first saves locally, so unavailable external services do not erase results. The server queries stable markers before retrying card/log creation. Closed server = no background syncing; reopen it to continue.
 
-The production build and TypeScript checks pass. Browser checks covered Anki sample ratings and round completion, pause/resume, correct and incorrect WaniKani-style meanings, the grammar dialog, and theme switching. Layout was checked at 320, 375, 414, and 768 pixels, with no document horizontal overflow. Private `.local` reports and PowerShell setup scripts return HTTP 403 from the Vite development server.
+Real review writes are serialized and guarded against repeat requests and changed cards/assignments. WaniKani checks accepted meanings, personal synonyms, whitelisted auxiliary meanings, and accepted readings. Both required parts must be correct before its review is sent; misses are counted. Marking uses exact normalized answers rather than WaniKani's full typo-tolerance algorithm. New lessons/assignment starts are not performed by this app.
+
+An interrupted real-review write has an unknown outcome. It is kept as pending and never blindly retried, including after a server restart. Check the source app, then start a fresh round. Successful retries of the same completed request do not double-submit. No offline review scheduling is invented.
+
+The dashboard is read-only and caches successful checks for a minute. Failed services show unknown or explicitly stale counts independently. Write endpoints require loopback Host, matching Origin, JSON, and the DokuGaku request header. Media access accepts only local filenames and supported image/audio types. Private files, setup scripts, tokens, and server source are denied by the Vite file server and ignored by Git. Keep this personal server on loopback.
+
+## Verification
+
+The test suite uses isolated fixtures and temporary storage, never live review submissions. It covers caching, source outages, scoring, deadlines, answer persistence, duplicate writes, unknown write outcomes, external assignment changes, lost create responses, atomic storage, and origin validation. Browser checks exercise the live queues, Anki answer/audio controls, lesson refresh recovery, mock navigation, source viewers, responsive layout, and themes without completing study activities on the user's behalf.
+
+## Sources and artwork
+
+Section timing: [official JLPT test sections](https://www.jlpt.jp/e/guideline/testsections.html). WaniKani integration: [official API](https://docs.api.wanikani.com/20170710/). Input conversion: [WanaKana](https://wanakana.com/). Independent project, not affiliated with WaniKani or JLPT organisers.
+
+The decorative sparrow and notebooks illustration was generated for this project with OpenAI's image-generation tool.

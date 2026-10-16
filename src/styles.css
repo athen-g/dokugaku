@@ -25,6 +25,428 @@
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
   color-scheme: light;
 }
+
+/* Study desk: paper surfaces, editorial hierarchy, hard-edged controls. */
+select {
+  font: inherit;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  padding: 10px;
+  min-width: 0;
+  max-width: 100%;
+}
+select:focus-visible,
+iframe:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+.nav-symbol {
+  width: 24px;
+  font-size: 22px;
+  text-align: center;
+  line-height: 1;
+}
+.secondary {
+  border: 1px solid var(--ink);
+  background: var(--surface);
+  padding: 11px 18px;
+  min-height: 44px;
+}
+.secondary:hover:not(:disabled) {
+  background: var(--sage-soft);
+}
+button:disabled {
+  opacity: 0.5;
+}
+.study-panel {
+  background: var(--surface);
+  border-top: 2px solid var(--ink);
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 24px;
+  min-width: 0;
+}
+.study-panel p {
+  max-width: 72ch;
+}
+.study-panel h2 {
+  font-size: clamp(26px, 3vw, 40px);
+}
+.error-note {
+  padding: 16px;
+  border-left: 3px solid var(--error);
+  background: var(--surface);
+  color: var(--error);
+  margin: 16px 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+  width: 100%;
+  max-width: 460px;
+}
+.real-card {
+  padding: 24px;
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+.real-card iframe {
+  border: 1px solid var(--line);
+  width: 100%;
+  min-height: 350px;
+  resize: vertical;
+}
+.real-card .answer-form {
+  width: 100%;
+}
+.answer-form input {
+  border: 1px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  padding: 12px;
+  max-width: 100%;
+  width: 100%;
+}
+.review-word img {
+  max-height: 150px;
+  max-width: 100%;
+}
+.learning-layout {
+  display: grid;
+  grid-template-columns: minmax(210px, 0.8fr) minmax(0, 2fr);
+  gap: 32px;
+  align-items: start;
+}
+.lesson-list {
+  display: flex;
+  flex-direction: column;
+  border-top: 2px solid var(--ink);
+  max-height: 750px;
+  overflow: auto;
+}
+.lesson-list button {
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: transparent;
+  text-align: left;
+  padding: 16px 8px;
+  display: flex;
+  gap: 16px;
+  min-height: 64px;
+}
+.lesson-list button.selected {
+  background: var(--sage-soft);
+}
+.lesson-list button > span:first-child {
+  color: var(--accent);
+  font-family: var(--font-display);
+}
+.lesson-list small {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+}
+.lesson-content {
+  position: sticky;
+  top: 24px;
+}
+.lesson-pattern {
+  font-size: 28px;
+  font-family: var(--font-jp);
+}
+.lesson-example {
+  width: 100%;
+  padding: 24px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  display: grid;
+  gap: 16px;
+}
+.lesson-example > p:first-child {
+  font-size: 26px;
+  line-height: 2;
+}
+rt {
+  font-size: 0.55em;
+  letter-spacing: 0;
+  font-weight: 400;
+}
+.listen {
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+}
+.listen small {
+  font-size: 12px;
+  color: var(--muted);
+  max-width: 58ch;
+}
+.paper-sections {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: 100%;
+  border-block: 1px solid var(--ink);
+}
+.paper-sections > div {
+  padding: 24px 16px;
+  border-right: 1px solid var(--line);
+}
+.paper-sections > div:last-child {
+  border: 0;
+}
+.paper-sections span {
+  font-family: var(--font-display);
+  font-size: 36px;
+  color: var(--accent);
+}
+.paper-sections h3 {
+  margin: 12px 0;
+}
+.exam-workspace {
+  gap: 20px;
+}
+.exam-workspace .session-top,
+.exam-workspace .progress-track {
+  width: 100%;
+  padding: 0;
+}
+.question-block {
+  width: 100%;
+  display: grid;
+  gap: 28px;
+  padding: 16px 0;
+}
+.question-block h2 {
+  font-size: 26px;
+  line-height: 2;
+  letter-spacing: 0;
+}
+.reading-passage {
+  font-size: 22px;
+  line-height: 2.2;
+  padding: 24px;
+  background: var(--paper);
+  border-left: 3px solid var(--line);
+}
+.question-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.question-options button {
+  min-height: 64px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  text-align: left;
+  background: var(--paper);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  line-height: 2;
+}
+.question-options button > span:first-child {
+  font: 14px var(--font-body);
+  border: 1px solid var(--line);
+  padding: 4px 8px;
+}
+.question-options button.chosen {
+  border: 2px solid var(--ink);
+  background: var(--sage-soft);
+  padding: 15px;
+}
+.exam-controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  flex-wrap: wrap;
+}
+.question-map {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.question-map button {
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--line);
+  background: var(--paper);
+}
+.question-map button.answered {
+  background: var(--sage-soft);
+}
+.question-map button[aria-current] {
+  outline: 2px solid var(--ink);
+  outline-offset: 1px;
+}
+.result-sections {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 14px;
+  text-transform: capitalize;
+}
+.answer-review {
+  width: 100%;
+}
+.answer-review details {
+  border-bottom: 1px solid var(--line);
+  padding: 20px 0;
+}
+.answer-review summary {
+  cursor: pointer;
+  line-height: 2;
+}
+.answer-review details p {
+  margin: 12px 0;
+}
+.progress-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-block: 2px solid var(--ink);
+  margin-bottom: 40px;
+}
+.progress-summary > div {
+  display: flex;
+  flex-direction: column;
+  padding: 24px 16px;
+  border-right: 1px solid var(--line);
+}
+.progress-summary strong {
+  font: 44px var(--font-display);
+}
+.progress-summary span {
+  font-size: 13px;
+  color: var(--muted);
+}
+.progress-columns,
+.library-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+}
+.day-history {
+  width: 100%;
+}
+.day-history > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 14px;
+}
+.check-setting {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  cursor: pointer;
+}
+.check-setting input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--accent);
+}
+.sync-list {
+  font-size: 13px;
+}
+.library-actions {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.resource-links {
+  padding-left: 20px;
+  margin: 0;
+  line-height: 2.5;
+}
+.roadmap {
+  margin-top: 32px;
+}
+.source-papers {
+  margin-bottom: 32px;
+}
+.paper-viewer {
+  width: 100%;
+  height: 650px;
+  border: 1px solid var(--line);
+  background: var(--paper);
+}
+.source-papers .session-top {
+  padding: 0;
+  width: 100%;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+@media (max-width: 1000px) {
+  .learning-layout {
+    grid-template-columns: 200px minmax(0, 1fr);
+    gap: 20px;
+  }
+  .study-panel {
+    padding: 24px;
+  }
+  .progress-columns,
+  .library-grid {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 760px) {
+  .learning-layout {
+    grid-template-columns: 1fr;
+  }
+  .lesson-list {
+    max-height: 240px;
+  }
+  .lesson-content {
+    position: static;
+  }
+  .study-panel {
+    padding: 20px;
+  }
+  .question-options {
+    grid-template-columns: 1fr;
+  }
+  .paper-sections {
+    grid-template-columns: 1fr;
+  }
+  .paper-sections > div {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .progress-summary {
+    grid-template-columns: 1fr 1fr;
+  }
+  .progress-summary strong {
+    font-size: 36px;
+  }
+  .real-card {
+    padding: 16px;
+  }
+  .real-card iframe {
+    min-height: 300px;
+  }
+  .reading-passage {
+    padding: 16px;
+  }
+  .day-history > div {
+    flex-wrap: wrap;
+  }
+  .nav-symbol {
+    font-size: 18px;
+  }
+}
 :root[data-theme="dark"] {
   --paper: oklch(21% 0.016 65);
   --surface: oklch(24% 0.018 65);

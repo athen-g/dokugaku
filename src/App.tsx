@@ -1,28 +1,653 @@
-import {useEffect, useRef, useState} from 'react';
+import { useEffect, useRef, useState } from "react";
 
-type Source = 'Anki' | 'WaniKani';
-type IconName = 'home'|'book'|'review'|'exam'|'chart'|'library'|'sun'|'moon';
-const paths:Record<IconName,string>={home:'m3 11 9-8 9 8 M5 10v11h5v-7h4v7h5V10',book:'M12 5v16 M3 4c4-1 7 0 9 2 2-2 5-3 9-2v15c-4-1-7 0-9 2-2-2-5-3-9-2Z',review:'M20 7a9 9 0 0 0-15-1L2 9 M2 3v6h6 M4 17a9 9 0 0 0 15 1l3-3 M22 21v-6h-6',exam:'M6 3h9l4 4v14H6Z M14 3v5h5 M9 12h7 M9 16h7',chart:'M4 21V13 M10 21V7 M16 21V3 M22 21V10',library:'M3 3h4v18H3Z M10 3h4v18h-4Z M17 4l4-1 4 17-4 1Z',sun:'M12 3v-2 M12 23v-2 M3 12H1 M23 12h-2 M5 5 3 3 M21 21l-2-2 M5 19l-2 2 M21 3l-2 2 M17 12a5 5 0 1 1-10 0 5 5 0 0 1 10 0',moon:'M20 15a9 9 0 0 1-11-11A9 9 0 1 0 20 15Z'};
-function Icon({name}:{name:IconName}){return <svg width="22" height="22" viewBox="0 0 26 26" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="square" strokeLinejoin="round" aria-hidden="true"><path d={paths[name]}/></svg>}
-const samples:Record<Source,{word:string;reading:string;meaning:string;example:string;translation:string}[]>={Anki:[{word:'学校',reading:'がっこう',meaning:'school',example:'学校へ行きます。',translation:'I go to school.'},{word:'水',reading:'みず',meaning:'water',example:'水を飲みます。',translation:'I drink water.'},{word:'本',reading:'ほん',meaning:'book',example:'本を読みます。',translation:'I read a book.'}],WaniKani:[{word:'山',reading:'やま',meaning:'mountain',example:'山が見えます。',translation:'I can see a mountain.'},{word:'川',reading:'かわ',meaning:'river',example:'川があります。',translation:'There is a river.'},{word:'人',reading:'ひと',meaning:'person',example:'あの人は先生です。',translation:'That person is a teacher.'}]};
-const nav:{label:string;icon:IconName}[]=[{label:'Today',icon:'home'},{label:'Learn',icon:'book'},{label:'Review',icon:'review'},{label:'Mock exams',icon:'exam'},{label:'Progress',icon:'chart'},{label:'Library',icon:'library'}];
-export default function App(){
- const [dark,setDark]=useState(()=>localStorage.getItem('dokugaku-theme')==='dark');
- const [page,setPage]=useState<'Today'|'Review'>('Today');
- const [source,setSource]=useState<Source>('Anki');
- const [started,setStarted]=useState(false);const [index,setIndex]=useState(0);const [shown,setShown]=useState(false);const [answer,setAnswer]=useState('');const [correct,setCorrect]=useState(0);const [help,setHelp]=useState(false);const [paused,setPaused]=useState(false);const [ratings,setRatings]=useState<string[]>([]);
- const lesson=useRef<HTMLDialogElement>(null);const answerInput=useRef<HTMLInputElement>(null);
- useEffect(()=>{document.documentElement.dataset.theme=dark?'dark':'light';localStorage.setItem('dokugaku-theme',dark?'dark':'light')},[dark]);
- useEffect(()=>{if(started&&source==='WaniKani'&&!shown&&!paused)answerInput.current?.focus()},[index,started,source,shown,paused]);
- const card=samples[source][index];const isCorrect=!!card&&answer.trim().toLowerCase()===card.meaning;
- function reset(next:Source=source){setSource(next);setStarted(false);setIndex(0);setShown(false);setAnswer('');setCorrect(0);setHelp(false);setPaused(false);setRatings([])}
- function begin(){setPage('Review');reset();setStarted(true);window.scrollTo(0,0)}
- function next(rating:string){setRatings(v=>[...v,rating]);if(source==='Anki'?rating!=='Again':isCorrect)setCorrect(v=>v+1);setIndex(v=>v+1);setShown(false);setHelp(false);setAnswer('')}
- return <><a href="#main" className="skip">Skip to content</a><div className="app-shell"><aside className="sidebar"><a className="brand" href="#" onClick={e=>{e.preventDefault();setPage('Today')}}>DokuGaku<span lang="ja">独学 <b aria-hidden="true">独</b></span></a><nav aria-label="Main navigation">{nav.map(item=><button key={item.label} className={`nav-item ${page===item.label?'selected':''}`} disabled={!['Today','Review','Learn'].includes(item.label)} title={!['Today','Review','Learn'].includes(item.label)?'Planned for a later version':undefined} aria-current={page===item.label?'page':undefined} onClick={()=>item.label==='Learn'?lesson.current?.showModal():setPage(item.label as 'Today'|'Review')}><Icon name={item.icon}/>{item.label}</button>)}</nav><div className="sidebar-bottom"><p className="sidebar-note">A little, regularly.<br/>少しずつ。</p><button className="theme-button" onClick={()=>setDark(v=>!v)} aria-label={`Switch to ${dark?'light':'dark'} mode`}><Icon name={dark?'moon':'sun'}/>{dark?'Dark':'Light'} <span>/ {dark?'Light':'Dark'}</span></button></div></aside>
- <main id="main"><header className="topline"><span>Your study desk</span><span>JLPT N5 <i/> 6 December 2026</span></header>
- {page==='Today'?<><section className="greeting"><p className="eyebrow">Make a little room to learn</p><h1>A little progress,<br className="desktop-break"/> every day<span className="accent">.</span></h1><p className="subtitle">One focused session. Then take a breath.</p></section><section className="review-invitation" aria-labelledby="invite-title"><div className="invite-copy"><span className="section-mark">Start small</span><h2 id="invite-title">A short round.<br/>A fresh start.</h2><p>3 sample cards <span className="dot">·</span> no time pressure</p><button className="primary" onClick={begin}>Begin review <span aria-hidden="true">→</span></button><p className="fine">Try the Anki and WaniKani review styles.</p></div><img className="sparrow" src="/sparrow.png" alt="An ink-painted sparrow beside two thread-bound notebooks"/></section><div className="today-lower"><section className="path"><h2>Today’s path</h2><div className="double-rule"/><button className="path-row" onClick={begin}><span className="ordinal">01</span><span><strong>Review a small batch</strong><small>Recall, reveal, and move at your pace.</small></span><span className="row-meta">3 cards</span><span aria-hidden="true">→</span></button><button className="path-row" onClick={()=>lesson.current?.showModal()}><span className="ordinal">02</span><span><strong>Grammar from the beginning</strong><small>Start with a simple sentence.</small></span><span className="row-meta">Preview</span><span aria-hidden="true">→</span></button><div className="path-row planned"><span className="ordinal">03</span><span><strong>Listen & understand</strong><small>Listening practice is coming next.</small></span><span className="row-meta">Planned</span><span aria-hidden="true">—</span></div></section><aside className="rhythm"><h2>Your study rhythm</h2><div className="double-rule"/><p className="rhythm-intro">Small sessions add up.</p><div className="week" aria-label="Sample week: Monday, Tuesday and Wednesday complete">{['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map((day,i)=><div key={day}><span className={`day ${i<3?'done':''}`} aria-hidden="true">{i<3?'✓':''}</span><small>{day}</small></div>)}</div><p className="fine">An illustration of progress.<br/>Your real activity is not shown here.</p><div className="small-note"><span aria-hidden="true">↳</span> Breaks are part of learning, too.</div></aside></div></>:<><section className="review-heading"><div><p className="eyebrow">A few cards. Your own pace.</p><h1>A small review.</h1></div><button className="text-button" onClick={()=>setPage('Today')}>← Back to today</button></section><div className="review-layout"><section className="review-workspace"><div className="source-selector" role="group" aria-label="Sample review source">{(['Anki','WaniKani'] as Source[]).map(s=><button key={s} aria-pressed={source===s} onClick={()=>reset(s)}>{s}</button>)}</div><div className="session-top"><span>{source} sample round</span><span>{started?Math.min(index+1,3):0} / 3</span></div><div className="progress-track" aria-label={`${index} of 3 sample cards completed`}><span style={{width:`${index/3*100}%`}}/></div>
- {!started?<div className="review-stage setup"><span className="jp-label" lang="ja">ひとつずつ。</span><h2>One card at a time.</h2><p>{source==='Anki'?'Reveal the answer, then choose how well you remembered it.':'Type an English meaning. Reading reviews will follow in the connected version.'}</p><button className="primary" onClick={()=>setStarted(true)}>Start 3 sample cards <span>→</span></button></div>:index>=3?<div className="review-stage complete" aria-live="polite"><span className="completion-mark" aria-hidden="true">✓</span><h2>A good place to pause.</h2><p>You completed 3 sample cards.</p><p className="result-line">{source==='Anki'?`${correct} rated Hard, Good, or Easy`:`${correct} of 3 meanings correct`}</p><p className="fine">{source==='Anki'?`Your ratings: ${ratings.join(' · ')}.`:'Extra practice can help the difficult words settle.'}<br/>Nothing was sent to {source} or Notion.</p><div className="end-actions"><button className="primary" onClick={()=>setPage('Today')}>Finish for now <span>→</span></button><button className="text-button" onClick={()=>{reset();setStarted(true)}}>Try another round</button></div></div>:paused?<div className="review-stage"><span className="jp-label" lang="ja">ひとやすみ</span><h2>Take your time.</h2><p>Your sample round is paused.<br/>Come back when you’re ready.</p><button className="primary" onClick={()=>setPaused(false)}>Resume review <span>→</span></button></div>:<div className="review-stage"><span className="question-type">{source==='Anki'?'Recall the meaning & reading':'Vocabulary · English meaning'}</span><div className="review-word" lang="ja">{card.word}</div>{!shown&&(source==='Anki'?<><p className="prompt">Take a moment to remember.</p><button className="primary reveal" onClick={()=>setShown(true)}>Reveal answer <span>↓</span></button></>:<form className="answer-form" onSubmit={e=>{e.preventDefault();if(answer.trim())setShown(true)}}><label htmlFor="answer">What does this word mean?</label><div className="input-row"><input id="answer" ref={answerInput} value={answer} onChange={e=>setAnswer(e.target.value)} placeholder="Type an English meaning" autoComplete="off" spellCheck={false}/><button className="primary" disabled={!answer.trim()} type="submit">Check <span>→</span></button></div><p className="fine">Reading stays hidden while you recall.</p></form>)}{shown&&<div className="answer-result" aria-live="polite">{source==='WaniKani'&&<p className={`verdict ${isCorrect?'right':'wrong'}`}>{isCorrect?'Correct. Nicely remembered.':'Not quite. Here’s the meaning.'}</p>}<p className="reading" lang="ja">{card.reading}</p><h2>{card.meaning}</h2>{help&&<div className="example"><span lang="ja">{card.example}</span><p>{card.translation}</p></div>}<button className="text-button help-button" aria-expanded={help} onClick={()=>setHelp(v=>!v)}>{help?'Hide example':'See an example'} {help?'−':'+'}</button>{source==='Anki'?<div className="rating-buttons">{['Again','Hard','Good','Easy'].map((r,i)=><button key={r} onClick={()=>next(r)} className={r==='Good'?'good':''}><span>{r}</span><small>{['Forgot','Difficult','Remembered','Effortless'][i]}</small></button>)}</div>:<button className="primary" onClick={()=>next(isCorrect?'Correct':'Incorrect')}>Next word <span>→</span></button>}</div>}</div>}
- {started&&index<3&&<div className="session-bottom"><span>Local sample only</span><button className="text-button" onClick={()=>setPaused(v=>!v)}>{paused?'Resume':'Take a break'} {paused?'→':'Ⅱ'}</button></div>}</section><aside className="review-aside"><span className="small-seal" lang="ja" aria-hidden="true">学</span><h2>Room to remember.</h2><p>Getting something wrong is useful information. It tells us what needs another look.</p><hr/><h3>A short round is enough.</h3><p>The real app will keep the remaining queue visible without asking you to finish everything at once.</p><div className="prototype-note"><strong>This is a design prototype.</strong><p>All cards and progress here are samples. No ratings, answers, or logs are sent to your connected accounts.</p></div></aside></div></>}
- <footer><div className="resource-list"><span>Anki</span><b>·</b><span>WaniKani</span><b>·</b><span>Notion</span></div><span className="preview-label">Design prototype <i/> sample data</span></footer></main></div>
- <dialog ref={lesson} className="lesson-dialog"><div className="lesson-header"><span>Lesson preview · Basic sentences</span><button className="text-button" onClick={()=>lesson.current?.close()} aria-label="Close lesson preview">Close ×</button></div><h2>A simple beginning.</h2><p className="lesson-jp" lang="ja">わたしは<ruby>学生<rt>がくせい</rt></ruby>です。</p><p className="translation">I am a student.</p><hr/><p><strong>は</strong> marks the topic. It is written <span lang="ja">は</span> but pronounced “wa” here.</p><p><strong>です</strong> makes this a polite statement. A useful pattern is <strong>A は B です</strong>: “A is B.”</p><p className="fine">This preview is not saved as a completed lesson.</p><button className="primary" onClick={()=>lesson.current?.close()}>Back to my desk <span>→</span></button></dialog></>;
+type Source = "Anki" | "WaniKani";
+type IconName =
+  "home" | "book" | "review" | "exam" | "chart" | "library" | "sun" | "moon";
+const paths: Record<IconName, string> = {
+  home: "m3 11 9-8 9 8 M5 10v11h5v-7h4v7h5V10",
+  book: "M12 5v16 M3 4c4-1 7 0 9 2 2-2 5-3 9-2v15c-4-1-7 0-9 2-2-2-5-3-9-2Z",
+  review:
+    "M20 7a9 9 0 0 0-15-1L2 9 M2 3v6h6 M4 17a9 9 0 0 0 15 1l3-3 M22 21v-6h-6",
+  exam: "M6 3h9l4 4v14H6Z M14 3v5h5 M9 12h7 M9 16h7",
+  chart: "M4 21V13 M10 21V7 M16 21V3 M22 21V10",
+  library: "M3 3h4v18H3Z M10 3h4v18h-4Z M17 4l4-1 4 17-4 1Z",
+  sun: "M12 3v-2 M12 23v-2 M3 12H1 M23 12h-2 M5 5 3 3 M21 21l-2-2 M5 19l-2 2 M21 3l-2 2 M17 12a5 5 0 1 1-10 0 5 5 0 0 1 10 0",
+  moon: "M20 15a9 9 0 0 1-11-11A9 9 0 1 0 20 15Z",
+};
+function Icon({ name }: { name: IconName }) {
+  return (
+    <svg
+      width="22"
+      height="22"
+      viewBox="0 0 26 26"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="square"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d={paths[name]} />
+    </svg>
+  );
+}
+const samples: Record<
+  Source,
+  {
+    word: string;
+    reading: string;
+    meaning: string;
+    example: string;
+    translation: string;
+  }[]
+> = {
+  Anki: [
+    {
+      word: "学校",
+      reading: "がっこう",
+      meaning: "school",
+      example: "学校へ行きます。",
+      translation: "I go to school.",
+    },
+    {
+      word: "水",
+      reading: "みず",
+      meaning: "water",
+      example: "水を飲みます。",
+      translation: "I drink water.",
+    },
+    {
+      word: "本",
+      reading: "ほん",
+      meaning: "book",
+      example: "本を読みます。",
+      translation: "I read a book.",
+    },
+  ],
+  WaniKani: [
+    {
+      word: "山",
+      reading: "やま",
+      meaning: "mountain",
+      example: "山が見えます。",
+      translation: "I can see a mountain.",
+    },
+    {
+      word: "川",
+      reading: "かわ",
+      meaning: "river",
+      example: "川があります。",
+      translation: "There is a river.",
+    },
+    {
+      word: "人",
+      reading: "ひと",
+      meaning: "person",
+      example: "あの人は先生です。",
+      translation: "That person is a teacher.",
+    },
+  ],
+};
+const nav: { label: string; icon: IconName }[] = [
+  { label: "Today", icon: "home" },
+  { label: "Learn", icon: "book" },
+  { label: "Review", icon: "review" },
+  { label: "Mock exams", icon: "exam" },
+  { label: "Progress", icon: "chart" },
+  { label: "Library", icon: "library" },
+];
+export default function App() {
+  const [dark, setDark] = useState(
+    () => localStorage.getItem("dokugaku-theme") === "dark",
+  );
+  const [page, setPage] = useState<"Today" | "Review">("Today");
+  const [source, setSource] = useState<Source>("Anki");
+  const [started, setStarted] = useState(false);
+  const [index, setIndex] = useState(0);
+  const [shown, setShown] = useState(false);
+  const [answer, setAnswer] = useState("");
+  const [correct, setCorrect] = useState(0);
+  const [help, setHelp] = useState(false);
+  const [paused, setPaused] = useState(false);
+  const [ratings, setRatings] = useState<string[]>([]);
+  const lesson = useRef<HTMLDialogElement>(null);
+  const answerInput = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    document.documentElement.dataset.theme = dark ? "dark" : "light";
+    localStorage.setItem("dokugaku-theme", dark ? "dark" : "light");
+  }, [dark]);
+  useEffect(() => {
+    if (started && source === "WaniKani" && !shown && !paused)
+      answerInput.current?.focus();
+  }, [index, started, source, shown, paused]);
+  const card = samples[source][index];
+  const isCorrect = !!card && answer.trim().toLowerCase() === card.meaning;
+  function reset(next: Source = source) {
+    setSource(next);
+    setStarted(false);
+    setIndex(0);
+    setShown(false);
+    setAnswer("");
+    setCorrect(0);
+    setHelp(false);
+    setPaused(false);
+    setRatings([]);
+  }
+  function begin() {
+    setPage("Review");
+    reset();
+    setStarted(true);
+    window.scrollTo(0, 0);
+  }
+  function next(rating: string) {
+    setRatings((v) => [...v, rating]);
+    if (source === "Anki" ? rating !== "Again" : isCorrect)
+      setCorrect((v) => v + 1);
+    setIndex((v) => v + 1);
+    setShown(false);
+    setHelp(false);
+    setAnswer("");
+  }
+  return (
+    <>
+      <a href="#main" className="skip">
+        Skip to content
+      </a>
+      <div className="app-shell">
+        <aside className="sidebar">
+          <a
+            className="brand"
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              setPage("Today");
+            }}
+          >
+            DokuGaku
+            <span lang="ja">
+              独学 <b aria-hidden="true">独</b>
+            </span>
+          </a>
+          <nav aria-label="Main navigation">
+            {nav.map((item) => (
+              <button
+                key={item.label}
+                className={`nav-item ${page === item.label ? "selected" : ""}`}
+                disabled={!["Today", "Review", "Learn"].includes(item.label)}
+                title={
+                  !["Today", "Review", "Learn"].includes(item.label)
+                    ? "Planned for a later version"
+                    : undefined
+                }
+                aria-current={page === item.label ? "page" : undefined}
+                onClick={() =>
+                  item.label === "Learn"
+                    ? lesson.current?.showModal()
+                    : setPage(item.label as "Today" | "Review")
+                }
+              >
+                <Icon name={item.icon} />
+                {item.label}
+              </button>
+            ))}
+          </nav>
+          <div className="sidebar-bottom">
+            <p className="sidebar-note">
+              A little, regularly.
+              <br />
+              少しずつ。
+            </p>
+            <button
+              className="theme-button"
+              onClick={() => setDark((v) => !v)}
+              aria-label={`Switch to ${dark ? "light" : "dark"} mode`}
+            >
+              <Icon name={dark ? "moon" : "sun"} />
+              {dark ? "Dark" : "Light"} <span>/ {dark ? "Light" : "Dark"}</span>
+            </button>
+          </div>
+        </aside>
+        <main id="main">
+          <header className="topline">
+            <span>Your study desk</span>
+            <span>
+              JLPT N5 <i /> 6 December 2026
+            </span>
+          </header>
+          {page === "Today" ? (
+            <>
+              <section className="greeting">
+                <p className="eyebrow">Make a little room to learn</p>
+                <h1>
+                  A little progress,
+                  <br className="desktop-break" /> every day
+                  <span className="accent">.</span>
+                </h1>
+                <p className="subtitle">
+                  One focused session. Then take a breath.
+                </p>
+              </section>
+              <section
+                className="review-invitation"
+                aria-labelledby="invite-title"
+              >
+                <div className="invite-copy">
+                  <span className="section-mark">Start small</span>
+                  <h2 id="invite-title">
+                    A short round.
+                    <br />A fresh start.
+                  </h2>
+                  <p>
+                    3 sample cards <span className="dot">·</span> no time
+                    pressure
+                  </p>
+                  <button className="primary" onClick={begin}>
+                    Begin review <span aria-hidden="true">→</span>
+                  </button>
+                  <p className="fine">
+                    Try the Anki and WaniKani review styles.
+                  </p>
+                </div>
+                <img
+                  className="sparrow"
+                  src="/sparrow.png"
+                  alt="An ink-painted sparrow beside two thread-bound notebooks"
+                />
+              </section>
+              <div className="today-lower">
+                <section className="path">
+                  <h2>Today’s path</h2>
+                  <div className="double-rule" />
+                  <button className="path-row" onClick={begin}>
+                    <span className="ordinal">01</span>
+                    <span>
+                      <strong>Review a small batch</strong>
+                      <small>Recall, reveal, and move at your pace.</small>
+                    </span>
+                    <span className="row-meta">3 cards</span>
+                    <span aria-hidden="true">→</span>
+                  </button>
+                  <button
+                    className="path-row"
+                    onClick={() => lesson.current?.showModal()}
+                  >
+                    <span className="ordinal">02</span>
+                    <span>
+                      <strong>Grammar from the beginning</strong>
+                      <small>Start with a simple sentence.</small>
+                    </span>
+                    <span className="row-meta">Preview</span>
+                    <span aria-hidden="true">→</span>
+                  </button>
+                  <div className="path-row planned">
+                    <span className="ordinal">03</span>
+                    <span>
+                      <strong>Listen & understand</strong>
+                      <small>Listening practice is coming next.</small>
+                    </span>
+                    <span className="row-meta">Planned</span>
+                    <span aria-hidden="true">—</span>
+                  </div>
+                </section>
+                <aside className="rhythm">
+                  <h2>Your study rhythm</h2>
+                  <div className="double-rule" />
+                  <p className="rhythm-intro">Small sessions add up.</p>
+                  <div
+                    className="week"
+                    aria-label="Sample week: Monday, Tuesday and Wednesday complete"
+                  >
+                    {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map(
+                      (day, i) => (
+                        <div key={day}>
+                          <span
+                            className={`day ${i < 3 ? "done" : ""}`}
+                            aria-hidden="true"
+                          >
+                            {i < 3 ? "✓" : ""}
+                          </span>
+                          <small>{day}</small>
+                        </div>
+                      ),
+                    )}
+                  </div>
+                  <p className="fine">
+                    An illustration of progress.
+                    <br />
+                    Your real activity is not shown here.
+                  </p>
+                  <div className="small-note">
+                    <span aria-hidden="true">↳</span> Breaks are part of
+                    learning, too.
+                  </div>
+                </aside>
+              </div>
+            </>
+          ) : (
+            <>
+              <section className="review-heading">
+                <div>
+                  <p className="eyebrow">A few cards. Your own pace.</p>
+                  <h1>A small review.</h1>
+                </div>
+                <button
+                  className="text-button"
+                  onClick={() => setPage("Today")}
+                >
+                  ← Back to today
+                </button>
+              </section>
+              <div className="review-layout">
+                <section className="review-workspace">
+                  <div
+                    className="source-selector"
+                    role="group"
+                    aria-label="Sample review source"
+                  >
+                    {(["Anki", "WaniKani"] as Source[]).map((s) => (
+                      <button
+                        key={s}
+                        aria-pressed={source === s}
+                        onClick={() => reset(s)}
+                      >
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="session-top">
+                    <span>{source} sample round</span>
+                    <span>{started ? Math.min(index + 1, 3) : 0} / 3</span>
+                  </div>
+                  <div
+                    className="progress-track"
+                    aria-label={`${index} of 3 sample cards completed`}
+                  >
+                    <span style={{ width: `${(index / 3) * 100}%` }} />
+                  </div>
+                  {!started ? (
+                    <div className="review-stage setup">
+                      <span className="jp-label" lang="ja">
+                        ひとつずつ。
+                      </span>
+                      <h2>One card at a time.</h2>
+                      <p>
+                        {source === "Anki"
+                          ? "Reveal the answer, then choose how well you remembered it."
+                          : "Type an English meaning. Reading reviews will follow in the connected version."}
+                      </p>
+                      <button
+                        className="primary"
+                        onClick={() => setStarted(true)}
+                      >
+                        Start 3 sample cards <span>→</span>
+                      </button>
+                    </div>
+                  ) : index >= 3 ? (
+                    <div className="review-stage complete" aria-live="polite">
+                      <span className="completion-mark" aria-hidden="true">
+                        ✓
+                      </span>
+                      <h2>A good place to pause.</h2>
+                      <p>You completed 3 sample cards.</p>
+                      <p className="result-line">
+                        {source === "Anki"
+                          ? `${correct} rated Hard, Good, or Easy`
+                          : `${correct} of 3 meanings correct`}
+                      </p>
+                      <p className="fine">
+                        {source === "Anki"
+                          ? `Your ratings: ${ratings.join(" · ")}.`
+                          : "Extra practice can help the difficult words settle."}
+                        <br />
+                        Nothing was sent to {source} or Notion.
+                      </p>
+                      <div className="end-actions">
+                        <button
+                          className="primary"
+                          onClick={() => setPage("Today")}
+                        >
+                          Finish for now <span>→</span>
+                        </button>
+                        <button
+                          className="text-button"
+                          onClick={() => {
+                            reset();
+                            setStarted(true);
+                          }}
+                        >
+                          Try another round
+                        </button>
+                      </div>
+                    </div>
+                  ) : paused ? (
+                    <div className="review-stage">
+                      <span className="jp-label" lang="ja">
+                        ひとやすみ
+                      </span>
+                      <h2>Take your time.</h2>
+                      <p>
+                        Your sample round is paused.
+                        <br />
+                        Come back when you’re ready.
+                      </p>
+                      <button
+                        className="primary"
+                        onClick={() => setPaused(false)}
+                      >
+                        Resume review <span>→</span>
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="review-stage">
+                      <span className="question-type">
+                        {source === "Anki"
+                          ? "Recall the meaning & reading"
+                          : "Vocabulary · English meaning"}
+                      </span>
+                      <div className="review-word" lang="ja">
+                        {card.word}
+                      </div>
+                      {!shown &&
+                        (source === "Anki" ? (
+                          <>
+                            <p className="prompt">Take a moment to remember.</p>
+                            <button
+                              className="primary reveal"
+                              onClick={() => setShown(true)}
+                            >
+                              Reveal answer <span>↓</span>
+                            </button>
+                          </>
+                        ) : (
+                          <form
+                            className="answer-form"
+                            onSubmit={(e) => {
+                              e.preventDefault();
+                              if (answer.trim()) setShown(true);
+                            }}
+                          >
+                            <label htmlFor="answer">
+                              What does this word mean?
+                            </label>
+                            <div className="input-row">
+                              <input
+                                id="answer"
+                                ref={answerInput}
+                                value={answer}
+                                onChange={(e) => setAnswer(e.target.value)}
+                                placeholder="Type an English meaning"
+                                autoComplete="off"
+                                spellCheck={false}
+                              />
+                              <button
+                                className="primary"
+                                disabled={!answer.trim()}
+                                type="submit"
+                              >
+                                Check <span>→</span>
+                              </button>
+                            </div>
+                            <p className="fine">
+                              Reading stays hidden while you recall.
+                            </p>
+                          </form>
+                        ))}
+                      {shown && (
+                        <div className="answer-result" aria-live="polite">
+                          {source === "WaniKani" && (
+                            <p
+                              className={`verdict ${isCorrect ? "right" : "wrong"}`}
+                            >
+                              {isCorrect
+                                ? "Correct. Nicely remembered."
+                                : "Not quite. Here’s the meaning."}
+                            </p>
+                          )}
+                          <p className="reading" lang="ja">
+                            {card.reading}
+                          </p>
+                          <h2>{card.meaning}</h2>
+                          {help && (
+                            <div className="example">
+                              <span lang="ja">{card.example}</span>
+                              <p>{card.translation}</p>
+                            </div>
+                          )}
+                          <button
+                            className="text-button help-button"
+                            aria-expanded={help}
+                            onClick={() => setHelp((v) => !v)}
+                          >
+                            {help ? "Hide example" : "See an example"}{" "}
+                            {help ? "−" : "+"}
+                          </button>
+                          {source === "Anki" ? (
+                            <div className="rating-buttons">
+                              {["Again", "Hard", "Good", "Easy"].map((r, i) => (
+                                <button
+                                  key={r}
+                                  onClick={() => next(r)}
+                                  className={r === "Good" ? "good" : ""}
+                                >
+                                  <span>{r}</span>
+                                  <small>
+                                    {
+                                      [
+                                        "Forgot",
+                                        "Difficult",
+                                        "Remembered",
+                                        "Effortless",
+                                      ][i]
+                                    }
+                                  </small>
+                                </button>
+                              ))}
+                            </div>
+                          ) : (
+                            <button
+                              className="primary"
+                              onClick={() =>
+                                next(isCorrect ? "Correct" : "Incorrect")
+                              }
+                            >
+                              Next word <span>→</span>
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {started && index < 3 && (
+                    <div className="session-bottom">
+                      <span>Local sample only</span>
+                      <button
+                        className="text-button"
+                        onClick={() => setPaused((v) => !v)}
+                      >
+                        {paused ? "Resume" : "Take a break"}{" "}
+                        {paused ? "→" : "Ⅱ"}
+                      </button>
+                    </div>
+                  )}
+                </section>
+                <aside className="review-aside">
+                  <span className="small-seal" lang="ja" aria-hidden="true">
+                    学
+                  </span>
+                  <h2>Room to remember.</h2>
+                  <p>
+                    Getting something wrong is useful information. It tells us
+                    what needs another look.
+                  </p>
+                  <hr />
+                  <h3>A short round is enough.</h3>
+                  <p>
+                    The real app will keep the remaining queue visible without
+                    asking you to finish everything at once.
+                  </p>
+                  <div className="prototype-note">
+                    <strong>This is a design prototype.</strong>
+                    <p>
+                      All cards and progress here are samples. No ratings,
+                      answers, or logs are sent to your connected accounts.
+                    </p>
+                  </div>
+                </aside>
+              </div>
+            </>
+          )}
+          <footer>
+            <div className="resource-list">
+              <span>Anki</span>
+              <b>·</b>
+              <span>WaniKani</span>
+              <b>·</b>
+              <span>Notion</span>
+            </div>
+            <span className="preview-label">
+              Design prototype <i /> sample data
+            </span>
+          </footer>
+        </main>
+      </div>
+      <dialog
+        ref={lesson}
+        className="lesson-dialog"
+        aria-labelledby="lesson-title"
+      >
+        <div className="lesson-header">
+          <span>Lesson preview · Basic sentences</span>
+          <button
+            className="text-button"
+            onClick={() => lesson.current?.close()}
+            aria-label="Close lesson preview"
+          >
+            Close ×
+          </button>
+        </div>
+        <h2 id="lesson-title">A simple beginning.</h2>
+        <p className="lesson-jp" lang="ja">
+          わたしは
+          <ruby>
+            学生<rt>がくせい</rt>
+          </ruby>
+          です。
+        </p>
+        <p className="translation">I am a student.</p>
+        <hr />
+        <p>
+          <strong>は</strong> marks the topic. It is written{" "}
+          <span lang="ja">は</span> but pronounced “wa” here.
+        </p>
+        <p>
+          <strong>です</strong> makes this a polite statement. A useful pattern
+          is <strong>A は B です</strong>: “A is B.”
+        </p>
+        <p className="fine">This preview is not saved as a completed lesson.</p>
+        <button className="primary" onClick={() => lesson.current?.close()}>
+          Back to my desk <span>→</span>
+        </button>
+      </dialog>
+    </>
+  );
 }

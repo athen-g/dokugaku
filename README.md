@@ -27,3 +27,7 @@ AnkiConnect, WaniKani, and Notion will connect through a local backend. The fron
 ## Artwork
 
 The sparrow and notebooks illustration was generated for this project with OpenAI's image-generation tool. It is decorative and does not contain study material.
+
+## Prototype validation
+
+The production build and TypeScript checks pass. Browser checks covered Anki sample ratings and round completion, pause/resume, correct and incorrect WaniKani-style meanings, the grammar dialog, and theme switching. Layout was checked at 320, 375, 414, and 768 pixels, with no document horizontal overflow. Private `.local` reports and PowerShell setup scripts return HTTP 403 from the Vite development server.

@@ -1,0 +1,11 @@
+.local/
+.env
+.env.*
+!.env.example
+node_modules/
+dist/
+*.log
+/Connect-*.ps1
+/Test-IntegrationWrites.ps1
+/artifacts/
+*.tsbuildinfo

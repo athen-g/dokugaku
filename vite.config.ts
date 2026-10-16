@@ -1,8 +1,9 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import { dashboardPlugin } from "./server/dashboard.mjs";
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), dashboardPlugin()],
   server: {
     host: "127.0.0.1",
     fs: {
@@ -14,6 +15,7 @@ export default defineConfig({
         "**/.local/**",
         "**/*.ps1",
         "**/*.clixml",
+        "**/server/**",
       ],
     },
   },

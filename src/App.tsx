@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import LiveDashboard from "./LiveDashboard";
 
 type Source = "Anki" | "WaniKani";
 type IconName =
@@ -238,14 +239,14 @@ export default function App() {
                     <br />A fresh start.
                   </h2>
                   <p>
-                    3 sample cards <span className="dot">·</span> no time
-                    pressure
+                    Live queues below <span className="dot">·</span> your own
+                    pace
                   </p>
                   <button className="primary" onClick={begin}>
-                    Begin review <span aria-hidden="true">→</span>
+                    Try sample review <span aria-hidden="true">→</span>
                   </button>
                   <p className="fine">
-                    Try the Anki and WaniKani review styles.
+                    Real review submission is the next step.
                   </p>
                 </div>
                 <img
@@ -254,6 +255,7 @@ export default function App() {
                   alt="An ink-painted sparrow beside two thread-bound notebooks"
                 />
               </section>
+              <LiveDashboard />
               <div className="today-lower">
                 <section className="path">
                   <h2>Today’s path</h2>
@@ -261,8 +263,8 @@ export default function App() {
                   <button className="path-row" onClick={begin}>
                     <span className="ordinal">01</span>
                     <span>
-                      <strong>Review a small batch</strong>
-                      <small>Recall, reveal, and move at your pace.</small>
+                      <strong>Explore the review flow</strong>
+                      <small>Three sample cards. No account changes.</small>
                     </span>
                     <span className="row-meta">3 cards</span>
                     <span aria-hidden="true">→</span>
@@ -290,31 +292,12 @@ export default function App() {
                   </div>
                 </section>
                 <aside className="rhythm">
-                  <h2>Your study rhythm</h2>
+                  <h2>Room for a break.</h2>
                   <div className="double-rule" />
                   <p className="rhythm-intro">Small sessions add up.</p>
-                  <div
-                    className="week"
-                    aria-label="Sample week: Monday, Tuesday and Wednesday complete"
-                  >
-                    {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map(
-                      (day, i) => (
-                        <div key={day}>
-                          <span
-                            className={`day ${i < 3 ? "done" : ""}`}
-                            aria-hidden="true"
-                          >
-                            {i < 3 ? "✓" : ""}
-                          </span>
-                          <small>{day}</small>
-                        </div>
-                      ),
-                    )}
-                  </div>
                   <p className="fine">
-                    An illustration of progress.
-                    <br />
-                    Your real activity is not shown here.
+                    Your queues are information, not a finish line. A short
+                    round is a good place to begin, and a good place to stop.
                   </p>
                   <div className="small-note">
                     <span aria-hidden="true">↳</span> Breaks are part of
@@ -605,7 +588,9 @@ export default function App() {
               <span>Notion</span>
             </div>
             <span className="preview-label">
-              Design prototype <i /> sample data
+              {page === "Today"
+                ? "Live dashboard · read-only"
+                : "Sample reviews · no submissions"}
             </span>
           </footer>
         </main>

@@ -1,6 +1,6 @@
 # DokuGaku · 独学
 
-A calm Japanese study desk, built with React, TypeScript, and Vite. The visual direction combines warm paper and editorial typography with restrained brutalist borders and controls.
+A calm Japanese study desk, built with React, TypeScript, and Vite, with a local Node.js backend. The visual direction combines warm paper and editorial typography with restrained brutalist borders and controls.
 
 ## Run locally
 
@@ -18,7 +18,32 @@ Open the local URL printed by Vite. Run `npm run build` to check types and produ
 - Answer reveal, sample ratings, typed English meanings, examples, pause/resume, and round summaries.
 - A short grammar lesson preview with furigana.
 
-**This is an interactive design prototype.** All cards and progress displayed are sample data. It does not submit reviews, create cards, log study, or access connected accounts. Only the theme preference is saved in browser storage. WaniKani sample marking accepts the single displayed English meaning; a production reviewer will need richer answer handling.
+**Today shows live read-only connection data when configured locally. Reviews and lessons remain samples.** No reviews, card creation, or study logs are submitted by the app yet. Only the theme preference is saved in browser storage. WaniKani sample marking accepts the single displayed English meaning; a production reviewer will need richer answer handling.
+
+## Local connections
+
+Run Anki with AnkiConnect on `127.0.0.1:8765`. Anki queue counts include all decks except the integration-test deck/tag, and count due cards rather than new cards. Counts may differ from Anki's daily-limit display. Reviewed-today counts are distinct cards in Anki's current study day, not number of review attempts.
+
+On Windows, the server can read user-encrypted SecureStrings from `.local/wanikani-token.clixml` and `.local/notion-token.clixml`. These must be created interactively on the same Windows account using `Read-Host -AsSecureString` and `Export-Clixml`. Never commit tokens or put them in frontend environment variables. The server decrypts tokens in memory and returns only dashboard summaries. It sends WaniKani GET requests and reads the Notion data-source schema; it does not write to either service.
+
+The ignored `.local/notion-check.json` selects the study planner using this structure (replace the example ID locally):
+
+```json
+{
+  "checks": [
+    {
+      "target": "Study Schedule",
+      "data_sources": [{ "id": "YOUR_DATA_SOURCE_UUID" }]
+    }
+  ]
+}
+```
+
+Existing local connection-check files are compatible. Credentials are machine/user-specific and are not portable to hosting. If a connection is missing or fails, its status is shown independently. Failed sources retain last-known counts in server memory with an explicit stale label; no successful history means unknown counts. The endpoint caches results for one minute and shares simultaneous requests. Its UI polls once a minute only while visible.
+
+`GET /api/dashboard` is served by the local Vite server (development and preview). It rejects non-loopback hosts, cross-origin requests, and write methods. Static deployment alone cannot provide this backend. Do not expose this personal development server to the internet.
+
+Run `npm test` for aggregation, caching, failure-state, and local-access tests.
 
 ## Planned integrations
 
